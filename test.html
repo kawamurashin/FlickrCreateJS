@@ -37,8 +37,8 @@ function init() {
 	shape.y = 150 + 50 * Math.sin(theta);
 	
 	var queue = new createjs.LoadQueue(true);
-	queue.addEventListener("fileload",handleFileLoad); 
-	queue.addEventListener("complete",handleComplete);
+	queue.addEventListener("fileload",XMLFileLoadHandler); 
+	queue.addEventListener("complete",XMLCompleteHandler);
 	//queue.loadFile({src:"data.xml",type:createjs.LoadQueue.XML});//ok
 	//queue.loadFile("data.xml");
 	//queue.loadFile("http://mztm.heteml.jp/kawamura/flickr/flickr.php");
@@ -50,14 +50,15 @@ function init() {
 	createjs.Ticker.setFPS(lib.properties.fps);
 	createjs.Ticker.addEventListener("tick", handleTick);
 }
-function handleFileLoad(event){
+function XMLFileLoadHandler(event){
 	// .itemにはファイルの情報が格納されています。詳細は後述
 	var item = event.item;
 	console.log(item.type);
 	var xml = event.result;
 	setImagesLoader(xml);
+}
+function XMLCompleteHandler(event){
 
-	
 }
 function setImagesLoader(xml){
 	//var xml = XML(str);	
@@ -75,7 +76,6 @@ function setImagesLoader(xml){
 	//
 	manifest = [];
 	n = nodes.length;
-	console.log("n :" + n); 
 	for(i=0;i<n;i++)
 	{
 		node = nodes[i];
@@ -100,27 +100,45 @@ function setImagesLoader(xml){
 }
 function loaderImageFileLoad(event)
 {
-	console.log("loaderImageFileLoad");
-	/**/
 	var item = event.item;
 	var bmd = event.result;
+	
+	bmd.width = 100;
+	bmd.height = 100;
 	var bm = new createjs.Bitmap(bmd);
-	bm.scaleX = 0.5;
-	bm.scaleY = 0.5;
+	
+	
 	var container = new createjs.Container();
 	stage.addChild(container);
-	
 	container.addChild(bm);
-	container.addEventListener("mousedown",mouseDownHandler);
+	
+	var clickArea = new createjs.Shape();
+	container.addChild(clickArea);
+	clickArea.graphics.beginFill(0xFF0000);
+	clickArea.graphics.drawRect(0,0,100,100);
+	container.x = 250 * Math.random();
+	container.y = 250 * Math.random();
+	/*
+	container.addChild(bm);
+	container.x = 250 * Math.random();
+	*/
+	clickArea.addEventListener("mousedown",mouseDownHandler);
 
+	
+}
+function loaderImagesComplete(event)
+{
 	
 }
 function mouseDownHandler(event)
 {
+	/**/
 	var container = event.target;
 	container.addEventListener("pressmove",pressMoveHandler);
 	container.addEventListener("mouseup",mouseUpHandler);
+	
 }
+/**/
 function pressMoveHandler(event)
 {
 	var container = event.target;
@@ -135,14 +153,8 @@ function mouseUpHandler(event)
 	container.removeEventListener("mouseup",mouseUpHandler);
 }
 	
-function loaderImagesComplete(event)
-{
-	
-}
-function handleComplete(event){
-	// completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
-	// var file = event.getResult(id); manifestで指定したid
-}
+
+
 function handleTick(event)
 {
 	theta += 0.11;
