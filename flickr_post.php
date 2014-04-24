@@ -13,8 +13,6 @@ $text = urlencode($keyword);
 
 $sort = "interestingness-desc";
 
-
-//URLを生成
 $url = 'http://api.flickr.com/services/rest/?'.
  'method='.$method.
  '&api_key='.$api_key.
@@ -22,7 +20,6 @@ $url = 'http://api.flickr.com/services/rest/?'.
  '&sort='.$sort.
  '&per_page='.$limit;
 
-//取得したXMLファイルをパースし、オブジェクトに代入
 $data = file_get_contents($url)
 or die("XMLパースエラー");
 
