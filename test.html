@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>test</title>
+
+<script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
+<script src="http://code.createjs.com/preloadjs-0.4.1.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script src="test.js"></script>
+
+<script>
+var canvas, stage, exportRoot;
+var shape;
+var theta;
+var manifest = [
+	{"src":"files.xml","id":"xml1","type":"PreloadJS.XML"}
+];
+//{"src":"http://mztm.heteml.jp/kawamura/flickr/flickr.php","id":"xml1","type":"PreloadJS.XML"},
+//{"src":"http://kudox.jp/labs/createjs-preloadjs-loadqueue-sample/xml/files.xml","id":"xml1","type":"PreloadJS.XML"}
+
+function init() {
+	canvas = document.getElementById("canvas");
+	exportRoot = new lib.test();
+
+	stage = new createjs.Stage(canvas);
+	stage.addChild(exportRoot);
+	
+	console.log("start");
+	
+	theta = 0;
+	
+	shape = new createjs.Shape();
+    shape.graphics.beginFill(0xFF0000)
+    shape.graphics.drawCircle(0,0,20);
+	shape.x = 300 + 100 * Math.cos(theta);
+	shape.y = 150 + 50 * Math.sin(theta);
+	
+	var queue = new createjs.LoadQueue(true);
+	queue.addEventListener("fileload",handleFileLoad); 
+	queue.addEventListener("complete",handleComplete);
+	//queue.loadFile({src:"data.xml",type:createjs.LoadQueue.XML});//ok
+	//queue.loadFile("data.xml");
+	//queue.loadFile("http://mztm.heteml.jp/kawamura/flickr/flickr.php");
+	//queue.loadFile({src:"http://mztm.heteml.jp/kawamura/flickr/flickr.php",type:createjs.LoadQueue.XML});
+	queue.loadFile({src:"http://mztm.heteml.jp/kawamura/flickr/flickr_post.php",type:createjs.LoadQueue.XML,method:"POST",values:{key:'yokohama'}});
+    stage.addChild(shape);
+	
+	stage.update();
+	createjs.Ticker.setFPS(lib.properties.fps);
+	createjs.Ticker.addEventListener("tick", handleTick);
+}
+function handleFileLoad(event){
+	// .itemにはファイルの情報が格納されています。詳細は後述
+	var item = event.item;
+	console.log(item.type);
+	var xml = event.result;
+	setImagesLoader(xml);
+
+	
+}
+function setImagesLoader(xml){
+	//var xml = XML(str);	
+	var nodes = xml.getElementsByTagName("photo");
+	var node;
+	var i;
+	var n;
+	var url;
+	var farm;
+	var server;
+	var id;
+	var secret;
+	var manifest;
+	var obj;
+	//
+	manifest = [];
+	n = nodes.length;
+	console.log("n :" + n); 
+	for(i=0;i<n;i++)
+	{
+		node = nodes[i];
+		farm = node.getAttribute("farm");
+		server = node.getAttribute("server");
+		id = node.getAttribute("id");
+		secret = node.getAttribute("secret");
+		//console.log(i,farm,server,id,secret);
+
+		url ="http://farm" + farm + ".static.flickr.com/" + server + "/" + id + "_" + secret + ".jpg";
+		obj = new Object();
+		obj.id = id;
+		obj.src = url;
+		obj.type = createjs.LoadQueue.IMAGE;
+		manifest.push(obj);
+	}
+	//
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload",loaderImageFileLoad);  
+	loader.addEventListener("complete",loaderImagesComplete);
+	loader.loadManifest(manifest); 
+}
+function loaderImageFileLoad(event)
+{
+	console.log("loaderImageFileLoad");
+	/**/
+	var item = event.item;
+	var bmd = event.result;
+	var bm = new createjs.Bitmap(bmd);
+	bm.scaleX = 0.5;
+	bm.scaleY = 0.5;
+	var container = new createjs.Container();
+	stage.addChild(container);
+	
+	container.addChild(bm);
+	container.addEventListener("mousedown",mouseDownHandler);
+
+	
+}
+function mouseDownHandler(event)
+{
+	var container = event.target;
+	container.addEventListener("pressmove",pressMoveHandler);
+	container.addEventListener("mouseup",mouseUpHandler);
+}
+function pressMoveHandler(event)
+{
+	var container = event.target;
+	container.x = event.stageX;
+	container.y = event.stageY;
+	stage.update();
+}
+function mouseUpHandler(event)
+{
+	var container = event.target;
+	container.removeEventListener("pressmove",pressMoveHandler);
+	container.removeEventListener("mouseup",mouseUpHandler);
+}
+	
+function loaderImagesComplete(event)
+{
+	
+}
+function handleComplete(event){
+	// completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
+	// var file = event.getResult(id); manifestで指定したid
+}
+function handleTick(event)
+{
+	theta += 0.11;
+	if(theta > 2* Math.PI)
+	{
+		theta -= 2 *Math.PI;
+	}
+	shape.x = 300 + 100 * Math.cos(theta);
+	shape.y = 150 + 50 * Math.sin(theta);
+    stage.update();
+}
+</script>
+</head>
+
+<body onload="init();" style="background-color:#D4D4D4">
+	<canvas id="canvas" width="465" height="465" style="background-color:#FFFFFF"></canvas>
+</body>
+</html>

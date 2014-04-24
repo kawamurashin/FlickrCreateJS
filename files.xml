@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<files>
+	<file src="js/config.json" id="json" />
+	<file src="js/slider.js" id="js" />
+	<file src="img/image_01.jpg" id="image01" />
+	<file src="img/image_02.jpg" id="image02" />
+	<file src="img/image_03.jpg" id="image03" />
+	<file src="img/image_04.jpg" id="image04" />
+	<file src="img/image_05.jpg" id="image05" />
+	<file src="img/image_06.jpg" id="image06" />
+	<file src="img/image_07.jpg" id="image07" />
+	<file src="img/image_08.jpg" id="image08" />
+	<file src="img/image_09.jpg" id="image09" />
+	<file src="img/image_10.jpg" id="image10" />
+</files>

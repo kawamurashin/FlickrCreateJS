@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>test</title>
+
+<script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
+<script src="http://code.createjs.com/preloadjs-0.4.1.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script src="test.js"></script>
+
+<script>
+var canvas, stage, exportRoot;
+var shape;
+var theta;
+var manifest = [
+	{"src":"files.xml","id":"xml1","type":"PreloadJS.XML"}
+];
+//{"src":"http://mztm.heteml.jp/kawamura/flickr/flickr.php","id":"xml1","type":"PreloadJS.XML"},
+//{"src":"http://kudox.jp/labs/createjs-preloadjs-loadqueue-sample/xml/files.xml","id":"xml1","type":"PreloadJS.XML"}
+
+function init() {
+	canvas = document.getElementById("canvas");
+	exportRoot = new lib.test();
+
+	stage = new createjs.Stage(canvas);
+	stage.addChild(exportRoot);
+	
+	console.log("hoge");
+	
+	theta = 0;
+	
+	shape = new createjs.Shape();
+    shape.graphics.beginFill(0xFF0000)
+    shape.graphics.drawCircle(0,0,20);
+	shape.x = 300 + 100 * Math.cos(theta);
+	shape.y = 150 + 50 * Math.sin(theta);
+	
+	var queue = new createjs.LoadQueue(true);
+	queue.loadManifest(manifest,true);
+	queue.addEventListener("fileload",handleFileLoad); 
+	queue.addEventListener("complete",handleComplete);
+
+    stage.addChild(shape);
+	
+	stage.update();
+	createjs.Ticker.setFPS(lib.properties.fps);
+	createjs.Ticker.addEventListener("tick", handleTick);
+}
+function handleFileLoad(event){
+	// .itemにはファイルの情報が格納されています。詳細は後述
+	console.log("poge");
+	var item = event.item;
+	console.log(item.type);
+	var xml = event.result;
+	console.log(xml);
+	var nodes = xml.getElementsByTagName("file");
+	var i;
+	var n;
+	n = nodes.length;
+	for(i=0;i<n;i++)
+	{
+		var node = nodes[i];
+		var id = node.getAttribute("id");
+		console.log(id);
+	}
+	
+}
+function setXMLLoader(xml){
+	//var xml = XML(str);	
+	var i;
+	var n;
+	var nodes;
+	//
+	//console.log(xml);
+	//nodes = xml.getElementsByTagName("photo");
+	//console.log(nodes);
+	//n = nodes.length;
+	//console.log(n);
+	
+}
+function handleComplete(event){
+	// completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
+	// var file = event.getResult(id); manifestで指定したid
+}
+function handleTick(event)
+{
+	theta += 0.11;
+	if(theta > 2* Math.PI)
+	{
+		theta -= 2 *Math.PI;
+	}
+	shape.x = 300 + 100 * Math.cos(theta);
+	shape.y = 150 + 50 * Math.sin(theta);
+    stage.update();
+}
+</script>
+</head>
+
+<body onload="init();" style="background-color:#D4D4D4">
+	<canvas id="canvas" width="550" height="400" style="background-color:#FFFFFF"></canvas>
+</body>
+</html>
